@@ -6,7 +6,7 @@ library(nnet)
 library(lightgbm)
 
 # Paths
-ROOT_DIR <- dirname(getwd())
+ROOT_DIR <- file.path(dirname(getwd()), 'LightGBM-in-R')
 MODEL_INPUTS_OUTPUTS <- file.path(ROOT_DIR, 'model_inputs_outputs')
 INPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "inputs")
 OUTPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "outputs")
@@ -25,6 +25,7 @@ PREDICTIONS_FILE <- file.path(PREDICTIONS_DIR, 'predictions.csv')
 LABEL_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'label_encoder.rds')
 ENCODED_TARGET_FILE <- file.path(MODEL_ARTIFACTS_PATH, "encoded_target.rds")
 TOP_3_CATEGORIES_MAP <- file.path(MODEL_ARTIFACTS_PATH, "top_3_map.rds")
+SCALER_FILE_PATH = file.path(MODEL_ARTIFACTS_PATH, "scaler.rds")
 
 if (!dir.exists(PREDICTIONS_DIR)) {
   dir.create(PREDICTIONS_DIR, recursive = TRUE)
@@ -92,6 +93,10 @@ target <- readRDS(ENCODED_TARGET_FILE)
 class_names <- encoder[target + 1]
 unique_classes <- unique(class_names)
 unique_classes <- sort(unique_classes)
+
+scaler <- readRDS(SCALER_FILE_PATH)
+df <- t(apply(df, 1, function(row) (row - scaler$means) / scaler$sds))
+
 
 
 # Making predictions

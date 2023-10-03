@@ -11,7 +11,7 @@ library(lightgbm)
 
 # Define directories and paths
 
-ROOT_DIR <- dirname(getwd())
+ROOT_DIR <- file.path(dirname(getwd()), 'LightGBM-in-R')
 MODEL_INPUTS_OUTPUTS <- file.path(ROOT_DIR, 'model_inputs_outputs')
 INPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "inputs")
 INPUT_SCHEMA_DIR <- file.path(INPUT_DIR, "schema")
@@ -24,7 +24,7 @@ IMPUTATION_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'imputation.rds')
 LABEL_ENCODER_FILE <- file.path(MODEL_ARTIFACTS_PATH, 'label_encoder.rds')
 ENCODED_TARGET_FILE <- file.path(MODEL_ARTIFACTS_PATH, "encoded_target.rds")
 TOP_3_CATEGORIES_MAP <- file.path(MODEL_ARTIFACTS_PATH, "top_3_map.rds")
-
+SCALER_FILE_PATH = file.path(MODEL_ARTIFACTS_PATH, "scaler.rds")
 
 if (!dir.exists(MODEL_ARTIFACTS_PATH)) {
     dir.create(MODEL_ARTIFACTS_PATH, recursive = TRUE)
@@ -133,6 +133,11 @@ saveRDS(encoded_target, ENCODED_TARGET_FILE)
 
 
 colnames(df) <- NULL
+df <- scale(df)
+column_means <- attr(df, "scaled:center")
+column_sds <- attr(df, "scaled:scale")
+saveRDS(list(means = column_means, sds = column_sds), SCALER_FILE_PATH)
+
 # Training LightGBM classifier
 train_lgb <- lgb.Dataset(data = as.matrix(df), label = encoded_target)
 num_classes <- length(unique(encoded_target))
@@ -140,12 +145,12 @@ num_classes <- length(unique(encoded_target))
 if(num_classes == 2) {
     params <- list(objective = "binary",
                    metric = "binary_logloss",
-                   num_rounds = 100)
+                   num_rounds = 400)
 } else {
     params <- list(objective = "multiclass",
                    metric = "multi_logloss",
                    num_class = num_classes,
-                   num_rounds = 100)
+                   num_rounds = 400)
 }
 
 
