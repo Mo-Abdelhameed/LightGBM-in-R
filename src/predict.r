@@ -6,7 +6,7 @@ library(nnet)
 library(lightgbm)
 
 # Paths
-ROOT_DIR <- file.path(dirname(getwd()), 'LightGBM-in-R')
+ROOT_DIR <- dirname(getwd())
 MODEL_INPUTS_OUTPUTS <- file.path(ROOT_DIR, 'model_inputs_outputs')
 INPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "inputs")
 OUTPUT_DIR <- file.path(MODEL_INPUTS_OUTPUTS, "outputs")
