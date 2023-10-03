@@ -48,7 +48,6 @@ id_feature <- schema$id$name
 target_feature <- schema$target$name
 model_category <- schema$modelCategory
 
-
 # Reading training data
 file_name <- list.files(TRAIN_DIR, pattern = "*.csv")[1]
 # Read the first line to get column names
@@ -133,24 +132,25 @@ saveRDS(levels_target, LABEL_ENCODER_FILE)
 saveRDS(encoded_target, ENCODED_TARGET_FILE)
 
 
+colnames(df) <- NULL
 # Training LightGBM classifier
 train_lgb <- lgb.Dataset(data = as.matrix(df), label = encoded_target)
-
 num_classes <- length(unique(encoded_target))
 
 if(num_classes == 2) {
     params <- list(objective = "binary",
-                   metric = "binary_logloss")
+                   metric = "binary_logloss",
+                   num_rounds = 100)
 } else {
     params <- list(objective = "multiclass",
                    metric = "multi_logloss",
-                   num_class = num_classes)
+                   num_class = num_classes,
+                   num_rounds = 100)
 }
 
 
 model <- lgb.train(params,
                    train_lgb,
-                   num_rounds = 100,
                    valids = list(train=train_lgb),
                    early_stopping_rounds = 10,
                    verbose = 1)
