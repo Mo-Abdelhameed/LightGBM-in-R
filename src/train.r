@@ -145,12 +145,14 @@ num_classes <- length(unique(encoded_target))
 if(num_classes == 2) {
     params <- list(objective = "binary",
                    metric = "binary_logloss",
-                   num_rounds = 400)
+                   num_rounds = 200,
+                   lambda_l2 = 0.5)
 } else {
     params <- list(objective = "multiclass",
                    metric = "multi_logloss",
                    num_class = num_classes,
-                   num_rounds = 400)
+                   num_rounds = 200,
+                   lambda_l2 = 0.5)
 }
 
 
